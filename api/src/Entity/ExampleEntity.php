@@ -7,6 +7,8 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Filter\LikeFilter;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -92,6 +94,16 @@ class ExampleEntity
      */
     private $camelCase;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Drankjes", mappedBy="example")
+     */
+    private $drankjes;
+
+    public function __construct()
+    {
+        $this->drankjes = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -129,6 +141,34 @@ class ExampleEntity
     public function setCamelCase(?string $camelCase): self
     {
         $this->camelCase = $camelCase;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Drankjes[]
+     */
+    public function getDrankjes(): Collection
+    {
+        return $this->drankjes;
+    }
+
+    public function addDrankje(Drankjes $drankje): self
+    {
+        if (!$this->drankjes->contains($drankje)) {
+            $this->drankjes[] = $drankje;
+            $drankje->addExample($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDrankje(Drankjes $drankje): self
+    {
+        if ($this->drankjes->contains($drankje)) {
+            $this->drankjes->removeElement($drankje);
+            $drankje->removeExample($this);
+        }
 
         return $this;
     }
